@@ -62,3 +62,22 @@ urlpatterns = [
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')),
 ]
 ```
+## Signals for profile creation automatically when User is newly created
+### Definition
+```
+# signals.py in app
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+```
+
+### Register in app config
+```
+class ProfilesConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'profiles'
+
+    def ready(self) -> None:
+        import profiles.signals
+```
